@@ -1,0 +1,83 @@
+1.)
+
+Tools needed:
+
+sudo apt-get install build-essential nasm genisoimage bochs bochs-sdl
+
+2.)
+
+The C-code will make use of one type attribute that is specific for GCC:
+
+__attribute__((packed))
+
+This attribute allows us to ensure that the compiler uses a memory layout
+for a struct exactly as we define it in the code.
+
+Due to this attribute, the example code might be hard to compile using a
+C compiler other than GCC.
+
+3.)
+
+Booting an operating system consists of transferring control along a chain
+of small programs, each one more "powerful" than the previous one, where the
+opearting system is the last "program". 
+
+BIOS -> GRUB1 -> GRUB2 -> OS
+
+4.)
+
+ABOUT BIOS
+
+When the PC is turned on, the computer will start a small program that adheres
+to the Basic Input Output System (BIOS) standard. This program is usually stored
+on a read only memory chip on the motherboard of the PC. The original role of
+the BIOS program was to export some library functions for printing to the screen,
+reading keyboard input etc. Modern operating systems do not use the BIOS' functions,
+they use direvers that interact directly with the hardware, bypassing the BIOS.
+Today, BIOS mainly runs some early diagnostics (power-on-self-test) and then
+transfer control to the bootloader.
+
+5.)
+
+ABOUT THE BOOTLOADER
+
+The BIOS program will transfer control of the PC to a program called a bootloader.
+The bootloader's task is to transfer control to us, the operating systems developers,
+and our code. However, due to some restrictions of the hardware and because of
+backward compatibility, the bootloader is often split into two parts: the first part
+of the bootloader will transfer control to the second part, which finally gives
+control of the PC of the operating system.
+
+Writing a bootloader involves writing a lot of low-level code that interacts with
+the BIOS. Therefore, an existing bootloader will be used:
+the GNU GRand Unified Bootloader (GRUB).
+
+Using GRUB, the operating system can be built as an ordinary ELF executable, which
+will be loaded by GRUB into the correct memory location. The compilation of the
+kernel requires that the code is laid out in memory in a specific way.
+
+6.)
+
+GRUB will transfer control to the operating system by jumping to a position in memory.
+Before the jump, GRUB will look for a magic number to ensure that it is actually
+jumping to an OS and not some random code. This magic number is part of the
+multiboot specification which GRUB adheres to. Once GRUB has made the jump, the OS has
+full control of the computer.
+
+7.)
+
+nasm -f elf32 loader.s
+
+8.)
+
+ld -T link.ld -melf_i386 loader.o -o kernel.elf
+
+9.)
+
+The GRUB version we will use is GRUB Legacy, since the OS ISO image can then be generated on
+systems using both GRUB Legacy and GRUB 2. More specifically, the GRUB Legacy stage2_eltorito
+bootloader will be used.
+
+ftp://alpha.gnu.org/gnu/grub/grub-0.97.tar.gz
+
+
